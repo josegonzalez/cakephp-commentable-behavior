@@ -6,11 +6,13 @@ This plugin provides an easy way to include Commentable Behavior in your applica
 - Download an archive from github and extract it in `/plugins/commentable`
 
 ## Usage
-In a model that needs slugging, add :
+1. In a model that needs slugging, add :
 
     var $actsAs = array('Commentable.Commentable')
 
-Add the following to it's controller (I'm using the Post controller as an example) :
+2. Execute the SQL command contained at config/sql/comments.sql
+
+3. Add the following to it's controller (I'm using the Post controller as an example) :
 
     function comment($id = null) {
         if (!empty($this->data['Comment'])) {
@@ -23,7 +25,7 @@ Add the following to it's controller (I'm using the Post controller as an exampl
         }
     }
 
-And add the following to the view (in my case the posts/view.ctp file) you'd like to comment on:
+4. And add the following to the view (in my case the posts/view.ctp file) you'd like to comment on:
 
     <h2><?php __('Post a Comment'); ?></h2>
     <?php echo $form->create('Post', array('action' => 'comment')); ?>
