@@ -28,10 +28,10 @@ class CommentableBehavior extends ModelBehavior {
 	 */
 	function setup(&$model, $settings = array()) {
 		$default = array(
-			'model_name' => 'Comment',    // name of Comment model
+			'class' => 'Comment',    // name of Comment model
 			'foreign_key' => 'foreign_id',    // foreign key of Comment model
 			'dependent' => true,    // model dependency
-			'conditions' => array('Comment.model_name' => $model->alias),    // conditions for find method on Comment model
+			'conditions' => array('Comment.class' => $model->alias),    // conditions for find method on Comment model
 			'auto_bind' => true,     // automatically bind the model to the User model (default true),
 			'sanitize' => true     // whether to sanitize incoming comments
 		);
@@ -47,7 +47,7 @@ class CommentableBehavior extends ModelBehavior {
 		if ($this->__settings[$model->alias]['auto_bind']) {
 			$commonHasMany = array(
 				'Comment' => array(
-					'className' => $this->__settings[$model->alias]['model_name'],
+					'className' => $this->__settings[$model->alias]['class'],
 					'foreignKey' => $this->__settings[$model->alias]['foreign_key'],
 					'dependent' => $this->__settings[$model->alias]['dependent'],
 					'conditions' =>$this->__settings[$model->alias]['conditions']));
@@ -57,7 +57,7 @@ class CommentableBehavior extends ModelBehavior {
 
 	function createComment(&$model, $foreignID, $commentData){
 		if (!empty($commentData['Comment'])) {
-			$commentData['Comment']['model_name'] = $model->alias;
+			$commentData['Comment']['class'] = $model->alias;
 			$commentData['Comment']['foreign_id'] = $foreignID;
 			if ($this->__settings[$model->alias]['sanitize']) {
 				App::import('Sanitize');
@@ -84,7 +84,7 @@ class CommentableBehavior extends ModelBehavior {
 		
 		if (isset($parameters['id']) && !is_numeric($parameters['id'])) {
 			$options = array_merge_recursive(
-				array('conditions' => array("$this->__settings[$model->alias]['model_name'].$this->__settings[$model->alias]['foreign_key']" => $parameters['id'])),
+				array('conditions' => array("$this->__settings[$model->alias]['class'].$this->__settings[$model->alias]['foreign_key']" => $parameters['id'])),
 				$parameters['options']
 			);
 		}
