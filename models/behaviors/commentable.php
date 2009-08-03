@@ -30,6 +30,7 @@ class CommentableBehavior extends ModelBehavior {
 		$default = array(
 			'class' => 'Comment',    // name of Comment model
 			'foreign_key' => 'foreign_id',    // foreign key of Comment model
+			'counter_cache' => true,
 			'dependent' => true,    // model dependency
 			'conditions' => array('Comment.class' => $model->alias),    // conditions for find method on Comment model
 			'auto_bind' => true,     // automatically bind the model to the User model (default true),
@@ -42,7 +43,7 @@ class CommentableBehavior extends ModelBehavior {
 
 		$this->__settings[$model->alias] = array_merge($this->__settings[$model->alias], ife(is_array($settings), $settings, array()));
 
-		//handles model binding to the User model
+		//handles model binding to the model
 		//according to the auto_bind settings (default true)
 		if ($this->__settings[$model->alias]['auto_bind']) {
 			$commonHasMany = array(
@@ -51,14 +52,22 @@ class CommentableBehavior extends ModelBehavior {
 					'foreignKey' => $this->__settings[$model->alias]['foreign_key'],
 					'dependent' => $this->__settings[$model->alias]['dependent'],
 					'conditions' =>$this->__settings[$model->alias]['conditions']));
+			$commentBelongsTo = array(
+				$model->alias => array(
+					'className' => $model->alias,
+					'foreignKey' => $this->__settings[$model->alias]['foreign_key'],
+					'counterCache' => $this->__settings[$model->alias]['counter_cache']
+					)
+				);
 			$model->bindModel(array('hasMany' => $commonHasMany), false);
+			$model->Comment->bindModel(array('belongsTo' => $commentBelongsTo), false);
 		}
 	}
 
-	function createComment(&$model, $foreignID, $commentData){
-		if (!empty($commentData['Comment'])) {
+	function createComment(&$model, $commentData = array()){
+		if (!empty($commentData['Comment']) ) {
 			$commentData['Comment']['class'] = $model->alias;
-			$commentData['Comment']['foreign_id'] = $foreignID;
+			$commentData['Comment']['foreign_id'] = $commentData[$model->alias]['id'];
 			if ($this->__settings[$model->alias]['sanitize']) {
 				App::import('Sanitize');
 				$commentData['Comment']['name'] = Sanitize::clean($commentData['Comment']['name']);
