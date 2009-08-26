@@ -89,20 +89,20 @@ class CommentableBehavior extends ModelBehavior {
 	}
 
 	function getComments(&$model, $parameters = array()){
-		$parameters = array_merge(array('id', 'options'), $parameters);
-		
-		if (isset($parameters['id']) && !is_numeric($parameters['id'])) {
+		$parameters = array_merge(array('id' => $model->id, 'options' => array()), $parameters);
+		$options = array();
+		if (isset($parameters['id']) && is_numeric($parameters['id'])) {
 			$options = array_merge_recursive(
-				array('conditions' => array("$this->__settings[$model->alias]['class'].$this->__settings[$model->alias]['foreign_key']" => $parameters['id'])),
+				array('conditions' => array("{$this->__settings[$model->alias]['class']}.{$this->__settings[$model->alias]['foreign_key']}" => $parameters['id'])),
 				$parameters['options']
 			);
 		}
 		if (isset($options) && !$this->__checkForEmptyVal($options)){
-			$model->Comment->find('all',
+			return $model->Comment->find('all',
 				$options
 			);
 		} else {
-			$model->Comment->find('all');
+			return $model->Comment->find('all');
 		}
 	}
 
