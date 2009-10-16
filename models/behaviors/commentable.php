@@ -25,14 +25,14 @@ class CommentableBehavior extends ModelBehavior {
  * @access public
  * @var array 
  */
-	$defaults = array( 
+	var $defaults = array( 
 		'class'				=> 'Comment',	// name of Comment model
 		'foreign_key'		=> 'foreign_id',// foreign key of Comment model
 		'counter_cache'		=> true,
 		'dependent'			=> true,		// model dependency
 		'conditions'		=> array(),		// conditions for find method on Comment model
 		'auto_bind'			=> true,		// automatically bind the model to the User model (default true),
-		'sanitize'			=> true			// whether to sanitize incoming comments
+		'sanitize'			=> true,		// whether to sanitize incoming comments
 		'column_author'		=> 'name',		// Column name for the authors name
 		'column_content'	=> 'body',		// Column name for the comments body
 		'column_email'		=> 'email',		// Column name for the authors email
@@ -274,7 +274,7 @@ class CommentableBehavior extends ModelBehavior {
 			'contain' => false
 		));
 		
-		return ($previousComments > 0) ? -$previousComments : return 0;
+		return ($previousComments > 0) ? -$previousComments : 0;
 	}
 
 	function _rateBody($model, $data) {
@@ -286,7 +286,7 @@ class CommentableBehavior extends ModelBehavior {
 			$matches);
 		$totalConsonants = count($matches[0]);
 		
-		return ($totalConsonants > 0) ? -$totalConsonants : return 0;
+		return ($totalConsonants > 0) ? -$totalConsonants : 0;
 	}
 
 	function _checkForEmptyVal($array) {
