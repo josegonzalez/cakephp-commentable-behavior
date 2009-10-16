@@ -1,8 +1,8 @@
 This plugin provides an easy way to include Commentable Behavior in your application. It also integrates Miles Johnson's (@gearvosh) CommentiaBehavior (http://www.milesj.me/resources/script/commentia-behavior) to enable some simple moderation of each comment before posting to the database.
 
 ## Installation
-- Clone from github : in your plugin directory type `git clone git://github.com/josegonzalez/commentable-behavior.git commentable`
-- Add as a git submodule : in the directory containing your app, type `git submodule add git://github.com/josegonzalez/commentable-behavior.git app/plugins/commentable`
+- Clone from github : in your plugin directory type `git clone git://github.com/josegonzalez/cakephp-commentable-behavior.git commentable`
+- Add as a git submodule : in the directory containing your app, type `git submodule add git://github.com/josegonzalez/cakephp-commentable-behavior.git app/plugins/commentable`
 - Download an archive from github and extract it in `app/plugins/commentable`
 
 ## Usage
