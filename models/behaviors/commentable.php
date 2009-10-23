@@ -35,11 +35,11 @@ class CommentableBehavior extends ModelBehavior {
 		'sanitize'			=> true,		// whether to sanitize incoming comments
 		'column_author'		=> 'name',		// Column name for the authors name
 		'column_content'	=> 'body',		// Column name for the comments body
+		'column_class'		=> 'class',		// Column name for the foreign model
 		'column_email'		=> 'email',		// Column name for the authors email
 		'column_website'	=> 'website',	// Column name for the authors website 
 		'column_foreign_id'	=> 'foreign_id',// Column name of the foreign id that links to the article/entry/etc
 		'column_status'		=> 'status',	// Column name for automatic rating
-		'column_rating'		=> 'rating',	// Column name for automatic rating
 		'column_points'		=> 'points',	// Column name for accrued points
 		'blacklist_keywords'=> array('levitra', 'viagra', 'casino', 'sex', 'loan', 'finance',
 									'slots', 'debt', 'free', 'interesting', 'sorry', 'cool'),
@@ -95,29 +95,74 @@ class CommentableBehavior extends ModelBehavior {
 		}
 	}
 
-	function createComment(&$model, $data = array()){
-		if (!empty($data['Comment']) ) {
-			$data['Comment']['class'] = $model->alias;
-			$data['Comment'][$this->__settings[$model->alias]['column_foreign_id']] = $commentData[$model->alias]['id'];
-			$data['Comment'][$this->__settings[$model->alias]['column_rating']] = $this->_rateComment($model, $data['Comment']);
-			$data['Comment'][$this->__settings[$model->alias]['column_status']] = 'approved';
+	function createComment(&$model, $id, $data = array()){
+		if (!empty($data[$this->__settings[$model->alias]['class']]) ) {
+			unset($data[$model->alias]);
+			$model->Comment->validate = array(
+				$this->__settings[$model->alias]['column_author'] => array(
+					'notempty' => array(
+						'rule' => array('notempty')
+					)
+				),
+				$this->__settings[$model->alias]['column_content'] => array(
+					'notempty' => array(
+						'rule' => array('notempty')
+					)
+				),
+				$this->__settings[$model->alias]['column_email'] => array(
+					'notempty' => array(
+						'rule' => array('notempty')
+					),
+					'email' => array(
+						'rule' => array('email'),
+						'message' => 'Please enter a valid email address'
+					)
+				),
+				$this->__settings[$model->alias]['column_class'] => array(
+					'notempty' => array(
+						'rule' => array('notempty')
+					)
+				),
+				$this->__settings[$model->alias]['column_foreign_id'] => array(
+					'notempty' => array(
+						'rule' => array('notempty')
+					)
+				),
+				$this->__settings[$model->alias]['column_status'] => array(
+					'notempty' => array(
+						'rule' => array('notempty')
+					)
+				),
+				$this->__settings[$model->alias]['column_points'] => array(
+					'notempty' => array(
+						'rule' => array('notempty')
+					),
+					'numeric' => array(
+						'rule' => array('numeric'),
+					)
+				)
+			);
+
+			$data[$this->__settings[$model->alias]['class']][$this->__settings[$model->alias]['column_class']] = $model->alias;
+			$data[$this->__settings[$model->alias]['class']][$this->__settings[$model->alias]['column_foreign_id']] = $id;
+			$data[$this->__settings[$model->alias]['class']] = $this->_rateComment($model, $data['Comment']);
 			if ($this->__settings[$model->alias]['sanitize']) {
 				App::import('Sanitize');
-				$data['Comment'][$this->__settings[$model->alias]['column_author']] =
-					Sanitize::clean($data['Comment'][$this->__settings[$model->alias]['column_author']]);
-				$data['Comment'][$this->__settings[$model->alias]['column_email']] =
-					Sanitize::clean($data['Comment'][$this->__settings[$model->alias]['column_email']]);
-				$data['Comment'][$this->__settings[$model->alias]['column_content']] =
-					Sanitize::clean($data['Comment'][$this->__settings[$model->alias]['column_content']]);
+			$data[$this->__settings[$model->alias]['class']][$this->__settings[$model->alias]['column_author']] =
+					Sanitize::clean($data[$this->__settings[$model->alias]['class']][$this->__settings[$model->alias]['column_author']]);
+				$data[$this->__settings[$model->alias]['class']][$this->__settings[$model->alias]['column_email']] =
+					Sanitize::clean($data[$this->__settings[$model->alias]['class']][$this->__settings[$model->alias]['column_email']]);
+				$data[$this->__settings[$model->alias]['class']][$this->__settings[$model->alias]['column_content']] =
+					Sanitize::clean($data[$this->__settings[$model->alias]['class']][$this->__settings[$model->alias]['column_content']]);
 			} else {
-				$data['Comment'][$this->__settings[$model->alias]['column_author']] =
-					$data['Comment'][$this->__settings[$model->alias]['column_author']];
-				$data['Comment'][$this->__settings[$model->alias]['column_email']] =
-					$data['Comment'][$this->__settings[$model->alias]['column_email']];
-				$data['Comment'][$this->__settings[$model->alias]['column_content']] =
-					$data['Comment'][$this->__settings[$model->alias]['column_content']];
+				$data[$this->__settings[$model->alias]['class']][$this->__settings[$model->alias]['column_author']] =
+					$data[$this->__settings[$model->alias]['class']][$this->__settings[$model->alias]['column_author']];
+				$data[$this->__settings[$model->alias]['class']][$this->__settings[$model->alias]['column_email']] =
+					$data[$this->__settings[$model->alias]['class']][$this->__settings[$model->alias]['column_email']];
+				$data[$this->__settings[$model->alias]['class']][$this->__settings[$model->alias]['column_content']] =
+					$data[$this->__settings[$model->alias]['class']][$this->__settings[$model->alias]['column_content']];
 			}
-			if ($this->_checkForEmptyVal($data['Comment']) == false) {
+			if ($this->_checkForEmptyVal($data[$this->__settings[$model->alias]['class']]) == false) {
 				$model->Comment->create();
 				if ($model->Comment->save($data)) {
 					return true;
@@ -145,7 +190,7 @@ class CommentableBehavior extends ModelBehavior {
 
 	function _rateComment($model, $data) {
 		if (!empty($data)) {
-			$points += $this->_rateLinks($model, $data);
+			$points = $this->_rateLinks($model, $data);
 			$points += $this->_rateLength($model, $data);
 			$points += $this->_rateEmail($model, $data);
 			$points += $this->_rateKeywords($model, $data);
@@ -153,16 +198,21 @@ class CommentableBehavior extends ModelBehavior {
 			$points += $this->_rateAuthorName($model, $data);
 			$points += $this->_rateByPreviousComment($model, $data);
 			$points += $this->_rateBody($model, $data);
+			$data[$this->__settings[$model->alias]['column_points']] = $points;
 			if ($points >= 1) {
-				return 'approved';
+				$data[$this->__settings[$model->alias]['column_status']] = 'approved';
 			} else if ($points == 0) {
-				return 'pending';
+				$data[$this->__settings[$model->alias]['column_status']] = 'pending';
 			} else if ($points <= $this->__settings[$model->alias]['deletion']) {
-				return 'delete';
+				$data[$this->__settings[$model->alias]['column_status']] = 'delete';
+			} else {
+				$data[$this->__settings[$model->alias]['column_status']] = 'spam';
 			}
-			return 'spam';
+		} else {
+			$data[$this->__settings[$model->alias]['column_points']] = "-100";
+			$data[$this->__settings[$model->alias]['column_status']] = 'delete';
 		}
-		return 'delete';
+		return $data;
 	}
 
 	function _rateLinks($model, $data) {
@@ -199,6 +249,7 @@ class CommentableBehavior extends ModelBehavior {
 	function _rateLength($model, $data) {
 		// How long is the body
 		// +2 if more then 20 chars and no links, -1 if less then 20
+		$length = mb_strlen($data[$this->__settings[$model->alias]['column_content']]);
 		if ($length >= 20 && $totalLinks <= 0) {
 			return 2;
 		} elseif ($length >= 20 && $totalLinks == 1) {
@@ -236,7 +287,7 @@ class CommentableBehavior extends ModelBehavior {
 		$points = 0;
 		// Keyword search
 		// -1 per blacklisted keyword
-		foreach ($this->blacklistKeywords as $keyword) {
+		foreach ($this->__settings[$model->alias]['blacklist_keywords'] as $keyword) {
 			if (stripos($data[$this->__settings[$model->alias]['column_content']], $keyword) !== false) {
 				--$points;
 			}
