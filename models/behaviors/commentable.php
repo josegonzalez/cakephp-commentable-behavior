@@ -179,8 +179,8 @@ class CommentableBehavior extends ModelBehavior {
 			$parameters = array_merge_recursive(
 				array('conditions' =>
 					array(
-						$this->__settings[$model->alias]['class'] . $this->__settings[$model->alias]['foreign_key'] => $options['id'],
-						$this->__settings[$model->alias]['class'] . $this->__settings[$model->alias]['column_status'] => 'status')),
+						$this->__settings[$model->alias]['class'] .'.'. $this->__settings[$model->alias]['foreign_key'] => $options['id'],
+						$this->__settings[$model->alias]['class'] .'.'. $this->__settings[$model->alias]['column_status'] => 'approved')),
 				$options['options']
 			);
 		}
