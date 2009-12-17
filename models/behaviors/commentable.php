@@ -176,11 +176,13 @@ class CommentableBehavior extends ModelBehavior {
 		$options = array_merge(array('id' => $model->id, 'options' => array()), $options);
 		$parameters = array();
 		if (isset($options['id']) && is_numeric($options['id'])) {
+            $settings = $this->__settings[$model->alias];
 			$parameters = array_merge_recursive(
 				array('conditions' =>
 					array(
-						$this->__settings[$model->alias]['class'] .'.'. $this->__settings[$model->alias]['foreign_key'] => $options['id'],
-						$this->__settings[$model->alias]['class'] .'.'. $this->__settings[$model->alias]['column_status'] => 'approved')),
+						$settings['class'] .'.'. $settings['column_class'] => $model->alias,
+						$settings['class'] .'.'. $settings['foreign_key'] => $options['id'],
+						$settings['class'] .'.'. $settings['column_status'] => 'approved')),
 				$options['options']
 			);
 		}
