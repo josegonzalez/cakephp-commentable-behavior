@@ -172,6 +172,19 @@ class CommentableBehavior extends ModelBehavior {
 		return false;
 	}
 
+    function deleteComment(&$model, $id){
+
+        if(is_null($id) || $id == "")
+            return false;
+
+        $model->Comment->id = $id;
+
+        if($model->Comment->saveField('status', 'deleted')) {
+            return true;
+        }
+        return false;
+    }
+
 	function getComments(&$model, $options = array()){
 		$options = array_merge(array('id' => $model->id, 'options' => array()), $options);
 		$parameters = array();
